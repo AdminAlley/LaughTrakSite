@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support — LaughTrak</title>
+  <meta name="description" content="LaughTrak support, help, and frequently asked questions." />
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #111010;
+      --surface: #1c1a1a;
+      --surface2:#242222;
+      --amber:   #FFB300;
+      --text:    #F0EDE8;
+      --muted:   #9E9792;
+      --border:  rgba(255,179,0,0.15);
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.7;
+    }
+    a { color: var(--amber); }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 40px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 700;
+      color: var(--text); text-decoration: none;
+    }
+    .nav-logo img { width: 30px; height: 30px; border-radius: 7px; }
+    .back-link { color: var(--muted); font-size: 0.875rem; }
+    .back-link:hover { color: var(--amber); }
+
+    /* Hero */
+    .page-hero {
+      padding: 72px 24px 60px;
+      text-align: center;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: 50%;
+      transform: translateX(-50%);
+      width: 500px; height: 300px;
+      background: radial-gradient(ellipse, rgba(255,179,0,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .page-hero .eyebrow {
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--amber); margin-bottom: 12px;
+    }
+    .page-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      margin-bottom: 12px;
+    }
+    .page-hero p { color: var(--muted); max-width: 500px; margin: 0 auto; }
+
+    .content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 72px 24px 80px;
+    }
+
+    /* FAQ */
+    .faq-section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 28px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .faq { display: flex; flex-direction: column; gap: 4px; margin-bottom: 60px; }
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .faq-q {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      list-style: none;
+      user-select: none;
+      transition: color 0.2s;
+    }
+    .faq-q:hover { color: var(--amber); }
+    .faq-q::after {
+      content: '+';
+      font-size: 1.2rem;
+      color: var(--amber);
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+    details[open] .faq-q::after { content: '−'; }
+    .faq-a {
+      padding: 0 22px 18px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    /* Contact */
+    .contact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 36px;
+      text-align: center;
+    }
+    .contact-card .icon { font-size: 2rem; margin-bottom: 16px; }
+    .contact-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+    .contact-card p { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--amber);
+      color: #0d0d0d;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 12px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #cc8f00; text-decoration: none; }
+
+    .section-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 56px 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 600px) {
+      nav { padding: 14px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <img src="icon.png" alt="LaughTrak icon" />
+      LaughTrak
+    </a>
+    <a href="index.html" class="back-link">← Back to Home</a>
+  </nav>
+
+  <div class="page-hero">
+    <p class="eyebrow">Help Center</p>
+    <h1>Support</h1>
+    <p>Find answers to common questions, or reach out directly — we're happy to help.</p>
+  </div>
+
+  <div class="content">
+
+    <!-- FAQ: General -->
+    <h2 class="faq-section-title">General</h2>
+    <div class="faq">
+
+      <details class="faq-item">
+        <summary class="faq-q">What is LaughTrak?</summary>
+        <div class="faq-a">
+          LaughTrak is a native iOS app for stand-up comedy fans. It lets you follow your favorite comedians, browse their specials and albums, discover nearby comedy clubs on a map, find live shows in your area, and receive notifications when followed comedians release new material or perform near you.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Is LaughTrak free?</summary>
+        <div class="faq-a">
+          Yes — LaughTrak is free to download and use. The app includes an optional Tip Jar (in-app purchase) if you'd like to support development, but all core features are available at no cost.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Do I need to create an account?</summary>
+        <div class="faq-a">
+          No account needed. LaughTrak uses your existing Apple ID and iCloud to sync your followed comedians across your devices — nothing extra to sign up for.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Which devices does LaughTrak support?</summary>
+        <div class="faq-a">
+          LaughTrak requires iOS 18 or later and runs on iPhone. iCloud sync works across any of your Apple devices signed in to the same Apple ID.
+        </div>
+      </details>
+
+    </div>
+
+    <!-- FAQ: Comedians & Content -->
+    <h2 class="faq-section-title">Comedians &amp; Content</h2>
+    <div class="faq">
+
+      <details class="faq-item">
+        <summary class="faq-q">How do I follow a comedian?</summary>
+        <div class="faq-a">
+          Tap the search bar on the Comedians tab, type the comedian's name, and tap on their profile in the results. From their detail page, tap the Follow button to add them to your lineup.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Where does comedian data come from?</summary>
+        <div class="faq-a">
+          Comedian profiles, specials, and albums are sourced from the Jester Comedy API — a dedicated comedy database. Additional special metadata may come from TMDB (The Movie Database).
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">A comedian I follow is missing or their data looks wrong. What should I do?</summary>
+        <div class="faq-a">
+          Comedian data is pulled from third-party databases. If something looks incorrect, please contact us with the comedian's name and what appears to be wrong — we'll look into it.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">How do I unfollow a comedian?</summary>
+        <div class="faq-a">
+          On the Comedians tab, swipe left on a comedian's card, or tap into their profile and use the Unfollow option. You can also unfollow all comedians at once from Settings → Unfollow All.
+        </div>
+      </details>
+
+    </div>
+
+    <!-- FAQ: Map & Shows -->
+    <h2 class="faq-section-title">Map &amp; Live Shows</h2>
+    <div class="faq">
+
+      <details class="faq-item">
+        <summary class="faq-q">How does the comedy club map work?</summary>
+        <div class="faq-a">
+          The Map tab uses your device's location (with your permission) to show comedy clubs near you on an interactive map. Tap any pin to see the club's name, address, rating, and contact information.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">How are nearby shows found?</summary>
+        <div class="faq-a">
+          Live comedy events are powered by Ticketmaster. LaughTrak sends your location to Ticketmaster to retrieve upcoming shows near you. Tap any event to get ticketing links.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Why isn't my location loading?</summary>
+        <div class="faq-a">
+          Make sure you've granted LaughTrak location access. Go to <strong>Settings → Privacy &amp; Security → Location Services → LaughTrak</strong> and set it to "While Using the App."
+        </div>
+      </details>
+
+    </div>
+
+    <!-- FAQ: Notifications -->
+    <h2 class="faq-section-title">Notifications</h2>
+    <div class="faq">
+
+      <details class="faq-item">
+        <summary class="faq-q">How do I turn on notifications?</summary>
+        <div class="faq-a">
+          In the app, go to the <strong>Settings tab → Notifications</strong>. Toggle on "New Video Releases" and/or "Tour Notifications." If you haven't already granted notification permission, iOS will prompt you to do so.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">How does LaughTrak know when something new is released?</summary>
+        <div class="faq-a">
+          LaughTrak periodically checks the Jester Comedy database in the background and compares current specials against what it last saw. If something new appears for a comedian you follow, you'll get a local notification.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">How do I set the search radius for tour notifications?</summary>
+        <div class="faq-a">
+          Go to <strong>Settings → Location → Search Radius</strong> and choose your preferred distance. Tour notifications will only fire when a followed comedian has a show within that radius.
+        </div>
+      </details>
+
+    </div>
+
+    <!-- FAQ: iCloud -->
+    <h2 class="faq-section-title">iCloud &amp; Data</h2>
+    <div class="faq">
+
+      <details class="faq-item">
+        <summary class="faq-q">Does LaughTrak sync my data across devices?</summary>
+        <div class="faq-a">
+          Yes. Your list of followed comedians is stored in your iCloud private database and syncs across all your Apple devices signed in to the same Apple ID — automatically, with no setup required.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">How do I delete all my data?</summary>
+        <div class="faq-a">
+          Go to <strong>Settings → Advanced → Erase iCloud Data</strong> to remove all synced data from iCloud. Then use <strong>Reset All Settings</strong> to clear local storage. Finally, delete the app from your device.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Does LaughTrak collect personal data?</summary>
+        <div class="faq-a">
+          No. LaughTrak does not collect or store personal data on our servers. Your data lives on your device and in your personal iCloud account. See our <a href="privacy.html">Privacy Policy</a> for full details.
+        </div>
+      </details>
+
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- Contact -->
+    <div class="contact-card" id="contact">
+      <div class="icon">✉️</div>
+      <h2>Still have a question?</h2>
+      <p>Can't find what you're looking for? Send us a message and we'll get back to you as soon as we can.</p>
+      <a href="mailto:support@laughtrak.app" class="btn-primary">
+        Email Support
+      </a>
+      <p style="margin-top: 20px; font-size: 0.8rem; color: var(--muted);">
+        support@laughtrak.app
+      </p>
+    </div>
+
+  </div>
+
+  <footer>
+    &copy; 2025 AdminAlley &nbsp;·&nbsp; <a href="index.html">Home</a> &nbsp;·&nbsp; <a href="privacy.html">Privacy Policy</a>
+  </footer>
+
+</body>
+</html>

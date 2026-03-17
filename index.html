@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LaughTrak — Track the Comedians You Love</title>
+  <meta name="description" content="LaughTrak is the iOS app for stand-up comedy fans. Follow comedians, browse specials, find nearby shows, and never miss a new release." />
+  <meta property="og:title" content="LaughTrak — Track the Comedians You Love" />
+  <meta property="og:description" content="Follow comedians, browse specials, find nearby shows, and never miss a new release." />
+  <meta property="og:image" content="https://laughtrak.app/icon.png" />
+  <meta property="og:url" content="https://laughtrak.app" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #111010;
+      --surface:   #1c1a1a;
+      --surface2:  #242222;
+      --amber:     #FFB300;
+      --amber-dim: #cc8f00;
+      --red:       #C0392B;
+      --text:      #F0EDE8;
+      --muted:     #9E9792;
+      --border:    rgba(255,179,0,0.15);
+      --spotlight: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,179,0,0.12) 0%, transparent 70%);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    h1, h2, h3 { font-family: 'Playfair Display', serif; line-height: 1.15; }
+    a { color: var(--amber); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    img { max-width: 100%; display: block; }
+
+    /* ── Brick Texture Overlay ── */
+    .brick-bg {
+      position: relative;
+    }
+    .brick-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 28px,
+          rgba(255,255,255,0.025) 28px,
+          rgba(255,255,255,0.025) 30px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 58px,
+          rgba(255,255,255,0.02) 58px,
+          rgba(255,255,255,0.02) 60px
+        );
+      pointer-events: none;
+      z-index: 0;
+    }
+    .brick-bg > * { position: relative; z-index: 1; }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 40px;
+      background: rgba(17,16,16,0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .nav-logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--amber); text-decoration: none; }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(ellipse, rgba(255,179,0,0.13) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    /* Stage floor line */
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--amber), transparent);
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,179,0,0.1);
+      border: 1px solid rgba(255,179,0,0.25);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--amber);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .hero-eyebrow .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--amber);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.8); }
+    }
+    .hero-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 22px;
+      margin: 0 auto 28px;
+      box-shadow: 0 0 60px rgba(255,179,0,0.3), 0 8px 32px rgba(0,0,0,0.6);
+    }
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #fff 30%, var(--amber) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-tagline {
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 40px;
+    }
+    .hero-tagline em {
+      color: var(--text);
+      font-style: normal;
+      font-weight: 600;
+    }
+    .cta-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--amber);
+      color: #0d0d0d;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 14px 32px;
+      border-radius: 12px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: var(--amber-dim); transform: translateY(-1px); text-decoration: none; }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 14px 32px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--amber); color: var(--amber); transform: translateY(-1px); text-decoration: none; }
+    .coming-soon-badge {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Phone Mockup ── */
+    .mockup-section {
+      padding: 80px 24px;
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      background: linear-gradient(180deg, var(--bg) 0%, var(--surface) 100%);
+    }
+    .phone-mockup {
+      width: 220px;
+      background: #1a1a1a;
+      border-radius: 38px;
+      border: 2px solid rgba(255,255,255,0.08);
+      padding: 14px 10px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+      position: relative;
+      flex-shrink: 0;
+    }
+    .phone-mockup::before {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+    }
+    .phone-screen {
+      background: var(--bg);
+      border-radius: 28px;
+      height: 380px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 28px 14px 14px;
+    }
+    .screen-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+    .screen-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    /* Comedian list simulation */
+    .sim-list { display: flex; flex-direction: column; gap: 10px; }
+    .sim-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface2);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .sim-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #333, #555);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .sim-name { font-size: 0.75rem; font-weight: 600; }
+    .sim-sub  { font-size: 0.65rem; color: var(--muted); }
+    /* Map simulation */
+    .sim-map {
+      flex: 1;
+      background: #1d2d1d;
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sim-map::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 18px, rgba(255,255,255,0.03) 18px, rgba(255,255,255,0.03) 19px),
+                  repeating-linear-gradient(90deg, transparent, transparent 18px, rgba(255,255,255,0.03) 18px, rgba(255,255,255,0.03) 19px);
+    }
+    .map-pin {
+      position: absolute;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--amber);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem;
+      box-shadow: 0 0 12px rgba(255,179,0,0.5);
+    }
+    /* Specials simulation */
+    .sim-specials { display: flex; flex-direction: column; gap: 10px; }
+    .sim-special {
+      background: var(--surface2);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sim-thumb {
+      width: 48px; height: 48px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #2a1a0a, #4a2e10);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .sim-special-name { font-size: 0.72rem; font-weight: 600; }
+    .sim-special-meta { font-size: 0.62rem; color: var(--muted); }
+
+    /* ── Section Wrapper ── */
+    .section {
+      padding: 100px 24px;
+    }
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+    .section-heading {
+      font-size: clamp(2rem, 4vw, 3rem);
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 540px;
+      margin-bottom: 64px;
+    }
+
+    /* ── Feature Grid ── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--amber), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,179,0,0.35);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: rgba(255,179,0,0.1);
+      border: 1px solid rgba(255,179,0,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+    .feature-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+    }
+    .feature-card p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* ── How It Works ── */
+    .how-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      counter-reset: step;
+    }
+    .step {
+      position: relative;
+      padding-left: 0;
+    }
+    .step-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: rgba(255,179,0,0.12);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .step h3 {
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+    .step p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    /* ── Spotlight Divider ── */
+    .spotlight-divider {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--amber), transparent);
+      margin: 0;
+    }
+
+    /* ── Quote / Tagline Banner ── */
+    .quote-banner {
+      padding: 80px 24px;
+      text-align: center;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+    .quote-banner::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(192,57,43,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .mic-icon {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .quote-banner blockquote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+      font-style: italic;
+      max-width: 700px;
+      margin: 0 auto;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .quote-banner blockquote em {
+      color: var(--amber);
+      font-style: italic;
+    }
+
+    /* ── Notification Preview ── */
+    .notif-section { background: var(--bg); }
+    .notif-demo {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 24px;
+      max-width: 360px;
+    }
+    .notif-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .notif-app-icon {
+      width: 32px; height: 32px; border-radius: 7px; overflow: hidden;
+    }
+    .notif-app-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .notif-app-name { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+    .notif-time      { font-size: 0.72rem; color: var(--muted); margin-left: auto; }
+    .notif-body h4   { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
+    .notif-body p    { font-size: 0.82rem; color: var(--muted); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .two-col .text-col h2 { margin-bottom: 16px; }
+    .two-col .text-col p  { color: var(--muted); margin-bottom: 24px; }
+    .feature-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.95rem;
+    }
+    .feature-list li .check {
+      color: var(--amber);
+      font-size: 1rem;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 48px 40px 32px;
+    }
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .footer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+    .footer-brand .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .footer-brand .logo-row img {
+      width: 30px; height: 30px; border-radius: 7px;
+    }
+    .footer-brand p { color: var(--muted); font-size: 0.85rem; max-width: 240px; }
+    .footer-links-group h4 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 14px;
+    }
+    .footer-links-group ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .footer-links-group ul a { color: var(--muted); font-size: 0.875rem; }
+    .footer-links-group ul a:hover { color: var(--text); text-decoration: none; }
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-bottom p { color: var(--muted); font-size: 0.8rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+      .two-col { grid-template-columns: 1fr; }
+      .two-col .visual-col { order: -1; }
+      .footer-top { flex-direction: column; }
+      .section { padding: 72px 20px; }
+      footer { padding: 40px 20px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Nav ── -->
+  <nav>
+    <div class="nav-logo">
+      <img src="icon.png" alt="LaughTrak icon" />
+      LaughTrak
+    </div>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#notifications">Notifications</a></li>
+      <li><a href="support.html">Support</a></li>
+      <li><a href="privacy.html">Privacy</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero brick-bg">
+    <div class="hero-eyebrow">
+      <span class="dot"></span>
+      Coming Soon to the App Store
+    </div>
+    <img class="hero-icon" src="icon.png" alt="LaughTrak app icon" />
+    <h1>LaughTrak</h1>
+    <p class="hero-tagline">
+      Your front-row seat to stand-up comedy.<br />
+      Follow <em>comedians</em>, browse <em>specials</em>, and find
+      <em>shows near you</em> — all in one place.
+    </p>
+    <div class="cta-group">
+      <a href="#features" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        See What's Inside
+      </a>
+      <a href="support.html" class="btn-secondary">
+        Contact &amp; Support
+      </a>
+    </div>
+    <p class="coming-soon-badge">iOS 18+ &nbsp;·&nbsp; iPhone &nbsp;·&nbsp; Free</p>
+  </section>
+
+  <!-- ── Phone Mockups ── -->
+  <div class="mockup-section">
+
+    <!-- Mockup 1: Following -->
+    <div class="phone-mockup">
+      <div class="phone-screen">
+        <div class="screen-label">Comedians</div>
+        <div class="screen-title">Following</div>
+        <div class="sim-list">
+          <div class="sim-item">
+            <div class="sim-avatar">🎤</div>
+            <div>
+              <div class="sim-name">Dave Chappelle</div>
+              <div class="sim-sub">3 specials &nbsp;·&nbsp; On Tour</div>
+            </div>
+          </div>
+          <div class="sim-item">
+            <div class="sim-avatar">😂</div>
+            <div>
+              <div class="sim-name">Nate Bargatze</div>
+              <div class="sim-sub">5 specials &nbsp;·&nbsp; New Release</div>
+            </div>
+          </div>
+          <div class="sim-item">
+            <div class="sim-avatar">🎭</div>
+            <div>
+              <div class="sim-name">Taylor Tomlinson</div>
+              <div class="sim-sub">2 specials</div>
+            </div>
+          </div>
+          <div class="sim-item">
+            <div class="sim-avatar">🎙️</div>
+            <div>
+              <div class="sim-name">John Mulaney</div>
+              <div class="sim-sub">6 specials</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mockup 2: Map -->
+    <div class="phone-mockup">
+      <div class="phone-screen">
+        <div class="screen-label">Map</div>
+        <div class="screen-title">Nearby Clubs</div>
+        <div class="sim-map" style="flex:1; margin-top: 8px;">
+          <div class="map-pin" style="top:30%; left:45%;">📍</div>
+          <div class="map-pin" style="top:55%; left:62%; background: var(--red);">📍</div>
+          <div class="map-pin" style="top:65%; left:30%;">📍</div>
+          <div class="map-pin" style="top:25%; left:70%; width:14px; height:14px; font-size:0.55rem;">📍</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mockup 3: Specials -->
+    <div class="phone-mockup">
+      <div class="phone-screen">
+        <div class="screen-label">Videos</div>
+        <div class="screen-title">Specials</div>
+        <div class="sim-specials">
+          <div class="sim-special">
+            <div class="sim-thumb">🎬</div>
+            <div>
+              <div class="sim-special-name">The Dreamer</div>
+              <div class="sim-special-meta">Nate Bargatze &nbsp;·&nbsp; 2023</div>
+            </div>
+          </div>
+          <div class="sim-special">
+            <div class="sim-thumb">🎬</div>
+            <div>
+              <div class="sim-special-name">Quarter-Life Crisis</div>
+              <div class="sim-special-meta">Taylor Tomlinson &nbsp;·&nbsp; 2020</div>
+            </div>
+          </div>
+          <div class="sim-special">
+            <div class="sim-thumb">🎬</div>
+            <div>
+              <div class="sim-special-name">From Scratch</div>
+              <div class="sim-special-meta">John Mulaney &nbsp;·&nbsp; 2023</div>
+            </div>
+          </div>
+          <div class="sim-special">
+            <div class="sim-thumb">🎬</div>
+            <div>
+              <div class="sim-special-name">Sticks &amp; Stones</div>
+              <div class="sim-special-meta">Dave Chappelle &nbsp;·&nbsp; 2019</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="spotlight-divider"></div>
+
+  <!-- ── Features ── -->
+  <section class="section" id="features">
+    <div class="section-inner">
+      <p class="section-eyebrow">Everything you need</p>
+      <h2 class="section-heading">Built for stand-up fans.</h2>
+      <p class="section-sub">LaughTrak brings everything about your favorite comedians into one beautifully designed iOS app.</p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎤</div>
+          <h3>Follow Comedians</h3>
+          <p>Build your personal roster of favorite comedians. LaughTrak keeps your list in sync across all your Apple devices via iCloud.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎬</div>
+          <h3>Browse Specials &amp; Albums</h3>
+          <p>Instantly see every special and comedy album from the comedians you follow. Never lose track of their catalog again.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🗺️</div>
+          <h3>Comedy Club Map</h3>
+          <p>Discover comedy clubs near you on an interactive map. Tap any club to see details, ratings, and contact info — then go laugh.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎟️</div>
+          <h3>Live Shows Near You</h3>
+          <p>Find out when comedians you follow are performing near you. Powered by Ticketmaster, with links to buy tickets right from the app.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔔</div>
+          <h3>New Release Alerts</h3>
+          <p>Get notified the moment a comedian you follow drops a new special or album. Be first in line, every time.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">☁️</div>
+          <h3>iCloud Sync</h3>
+          <p>Your followed comedians live in iCloud — switch between your iPhone, iPad, or a new phone and everything is right where you left it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="spotlight-divider"></div>
+
+  <!-- ── Quote Banner ── -->
+  <div class="quote-banner">
+    <span class="mic-icon">🎙️</span>
+    <blockquote>
+      "Comedy is everywhere. Now you can <em>track</em> it."
+    </blockquote>
+  </div>
+
+  <div class="spotlight-divider"></div>
+
+  <!-- ── How It Works ── -->
+  <section class="section how-section" id="how-it-works">
+    <div class="section-inner">
+      <p class="section-eyebrow">Getting started</p>
+      <h2 class="section-heading">Up and running in seconds.</h2>
+      <p class="section-sub">No account required. Just install, follow a few comedians, and the app does the rest.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <h3>Search for Comedians</h3>
+          <p>Type any comedian's name into the search bar. LaughTrak pulls from a rich comedy database to find who you're looking for.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <h3>Tap to Follow</h3>
+          <p>Tap a comedian to see their profile, specials, and tour dates — then follow them with a single tap to add them to your lineup.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <h3>Explore Their Work</h3>
+          <p>Browse their full catalog of specials and albums. Tap a special to find where to watch it.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <h3>Find Shows Near You</h3>
+          <p>Open the Map tab to discover comedy clubs nearby, or check the live events list when a comedian you follow comes to town.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="spotlight-divider"></div>
+
+  <!-- ── Notifications ── -->
+  <section class="section notif-section" id="notifications">
+    <div class="section-inner">
+      <div class="two-col">
+        <div class="text-col">
+          <p class="section-eyebrow">Stay in the loop</p>
+          <h2 class="section-heading">Never miss a moment.</h2>
+          <p>LaughTrak quietly watches for you. The moment something happens with a comedian you follow, you'll know about it — right on your lock screen.</p>
+          <ul class="feature-list">
+            <li>
+              <span class="check">★</span>
+              <span><strong>New release alerts</strong> — instant notification when a followed comedian drops new material</span>
+            </li>
+            <li>
+              <span class="check">★</span>
+              <span><strong>Nearby tour alerts</strong> — get notified when a followed comedian is performing within your search radius</span>
+            </li>
+            <li>
+              <span class="check">★</span>
+              <span><strong>Fully configurable</strong> — toggle each notification type individually in Settings</span>
+            </li>
+            <li>
+              <span class="check">★</span>
+              <span><strong>Custom search radius</strong> — set how far "nearby" means to you</span>
+            </li>
+          </ul>
+        </div>
+        <div class="visual-col" style="display:flex; flex-direction:column; gap:16px; align-items:flex-start;">
+          <div class="notif-demo">
+            <div class="notif-header">
+              <div class="notif-app-icon"><img src="icon.png" alt="" /></div>
+              <div class="notif-app-name">LaughTrak</div>
+              <div class="notif-time">now</div>
+            </div>
+            <div class="notif-body">
+              <h4>New Special Available 🎬</h4>
+              <p>John Mulaney just dropped a new comedy special. Tap to see it.</p>
+            </div>
+          </div>
+          <div class="notif-demo">
+            <div class="notif-header">
+              <div class="notif-app-icon"><img src="icon.png" alt="" /></div>
+              <div class="notif-app-name">LaughTrak</div>
+              <div class="notif-time">2m ago</div>
+            </div>
+            <div class="notif-body">
+              <h4>Show Near You 🎟️</h4>
+              <p>Nate Bargatze is performing 12 miles away this Saturday. Don't miss it!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="spotlight-divider"></div>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="logo-row">
+            <img src="icon.png" alt="LaughTrak icon" />
+            LaughTrak
+          </div>
+          <p>The iOS app for stand-up comedy fans. Coming soon to the App Store.</p>
+        </div>
+        <div class="footer-links-group">
+          <h4>App</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#notifications">Notifications</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-group">
+          <h4>Legal &amp; Support</h4>
+          <ul>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="support.html">Support</a></li>
+            <li><a href="support.html#contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 AdminAlley. LaughTrak is an independent app and is not affiliated with any comedian or comedy network.</p>
+        <p>Made with ❤️ for stand-up fans.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
